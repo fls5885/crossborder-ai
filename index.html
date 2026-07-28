@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>CrossBorder AI</title>
+<title>CrossBorder AI - 跨境物流智能助手</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
@@ -61,11 +61,13 @@ body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;min-h
 .hsk span{padding:2px 8px;border-radius:10px;background:#f1f5f9;font-size:11px;color:#64748b}
 .sc{padding:16px;border-radius:14px;border:2px solid;display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .hide{display:none!important}
+.status-bar{background:#dcfce7;border-bottom:1px solid #bbf7d0;padding:8px 16px;text-align:center;font-size:12px;color:#166534}
 @media(max-width:768px){.side{display:none}.qg{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="hdr"><div class="hdr-in"><div><h1>🚢 CrossBorder AI</h1><span id="sd">跨境物流 · 智能助手</span></div><button class="lb" onclick="togLang()">EN</button></div></div>
+<div class="status-bar">✅ 服务已就绪 · DeepSeek AI + 17track 物流追踪</div>
 <div class="nav" id="nav"></div>
 <div class="box">
   <div id="pg-chat" class="wrap">
@@ -96,11 +98,6 @@ body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;min-h
 <footer style="text-align:center;padding:16px;color:#94a3b8;font-size:11px">© 2026 CrossBorder AI</footer>
 
 <script>
-// ===== CONFIG =====
-let DK=prompt('请输入 DeepSeek API Key:','')||'';
-let TK=prompt('请输入 17track API Key (可留空跳过):','')||'';
-const DU='https://api.deepseek.com';
-
 // ===== I18N =====
 let L='zh';
 const T={
@@ -111,7 +108,7 @@ cT:'📦 国际运费估算',cD:'输入包裹信息，对比主流物流渠道',
 vol:'体积重',chg:'计费重量',cheap:'最便宜',
 hT:'🔍 HS 编码查询',hD:'输入商品描述，匹配海关编码',hPh:'例如：蓝牙耳机',hNote:'注意：仅供参考，实际以海关认定为准',
 tT:'📬 物流追踪',tD:'输入运单号，查询全球 3400+ 运输商',tPh:'运单号',tErr:'查询失败，请检查运单号',tNo:'暂无物流信息，请稍后重试',
-delivered:'已签收',inTransit:'运输中',exception:'异常',notFound:'未找到',events:'物流轨迹',num:'运单号',carrier:'承运商'},
+events:'物流轨迹',num:'运单号'},
 en:{nav:['AI Chat','Shipping','HS Code','Tracking'],sd:'Cross-border Logistics AI',ct:'Cross-Border Logistics AI',ph:'Ask a question…',send:'Send',think:'Thinking…',
 welcome:'Hi! I\'m your Cross-Border Logistics AI 🚢\n\nAsk about:\n• Shipping options\n• Customs clearance\n• FBA requirements\n• E-commerce operations\n• Duties & taxes\n\nWhat would you like to know?',
 err:'Sorry, an error occurred.',ht:'History',noH:'No history yet',
@@ -119,7 +116,7 @@ cT:'📦 Shipping Estimator',cD:'Compare rates across carriers',lw:'Weight (kg)'
 vol:'Vol.W',chg:'Chargeable',cheap:'Cheapest',
 hT:'🔍 HS Code Lookup',hD:'Describe your product',hPh:'e.g.: bluetooth earphones',hNote:'For reference only.',
 tT:'📬 Package Tracking',tD:'Track parcels across 3400+ carriers',tPh:'Tracking number',tErr:'Tracking failed. Check number.',tNo:'No tracking info yet.',
-delivered:'Delivered',inTransit:'In Transit',exception:'Exception',notFound:'Not Found',events:'Events',num:'No.',carrier:'Carrier'}
+events:'Events',num:'No.'}
 };
 function t(k){return T[L][k]||k}
 
@@ -139,12 +136,12 @@ function togLang(){L=L==='zh'?'en':'zh';rNav();rChat();rHist();
   document.getElementById('cT').textContent=t('cT');document.getElementById('cD').textContent=t('cD');
   document.getElementById('hT').textContent=t('hT');document.getElementById('hD').textContent=t('hD');
   document.getElementById('tT').textContent=t('tT');document.getElementById('tD').textContent=t('tD');
-  document.getElementById('hi').placeholder=t('hPh');document.getElementById('hb').textContent='查询';
-  document.getElementById('cb').textContent=t('cb');document.getElementById('tb').textContent='Track';
+  document.getElementById('hi').placeholder=t('hPh');
+  document.getElementById('cb').textContent=t('cb');
   document.getElementById('ht').textContent=t('ht');initCalc();initHS();}
 
 // ===== CHAT MEMORY =====
-const SK='cb…ats';
+const SK='cb_ai_chats';
 function getS(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch{return[]}}
 function saveS(s){localStorage.setItem(SK,JSON.stringify(s));rHist()}
 let curS=null,msgs=[];
@@ -170,13 +167,13 @@ function rChat(){
 let streaming=false;
 async function send(){
   const ci=document.getElementById('ci'),c=ci.value.trim();
-  if(!c||streaming)return;if(!DK){alert('请先配置 DeepSeek API Key');return;}
+  if(!c||streaming)return;
   if(!curS){curS={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:c.slice(0,40),messages:[],u:Date.now()};const a=getS();a.unshift(curS);saveS(a);}
   msgs.push({r:'u',c,t:Date.now()});ci.value='';rChat();saveCur();
   streaming=true;document.getElementById('sb').disabled=true;document.getElementById('sb').textContent=t('think');
   const cm=document.getElementById('cm'),td=document.createElement('div');td.className='m a';td.id='tm';td.innerHTML='<div class="av">🤖</div><div><div class="mb"><div class="typ"><span></span><span></span><span></span></div></div></div>';cm.appendChild(td);cm.scrollTop=cm.scrollHeight;
   try{
-    const res=await fetch(DU+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+DK},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:L==='zh'?'你是CrossBorder AI，专业的跨境物流和跨境电商AI助手。回答准确专业，给具体数据，用emoji，用Markdown。':'You are CrossBorder AI, a pro cross-border logistics assistant. Be accurate and actionable. Use emoji and Markdown.'},...msgs.map(m=>({role:m.r==='u'?'user':'assistant',content:m.c}))],stream:true,max_tokens:2000,temperature:0.7})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs.map(m=>({role:m.r==='u'?'user':'assistant',content:m.c})),locale:L})});
     const rd=res.body.getReader(),dc=new TextDecoder();let full='';
     while(true){const{done,value}=await rd.read();if(done)break;const ch=dc.decode(value,{stream:true});for(const ln of ch.split('\n')){if(ln.startsWith('data:')&&ln!=='data: [DONE]'){try{const d=JSON.parse(ln.slice(5));const tx=d.choices?.[0]?.delta?.content||'';full+=tx;const el=document.getElementById('tm');if(el)el.querySelector('.mb').innerHTML=esc(full);cm.scrollTop=cm.scrollHeight;}catch{}}}}
     document.getElementById('tm')?.remove();msgs.push({r:'a',c:full||t('err'),t:Date.now()});rChat();saveCur();
@@ -229,20 +226,18 @@ function doHS(){
 
 // ===== TRACKING =====
 async function doTrk(){
-  const n=document.getElementById('ti').value.trim();if(!n)return;if(!TK){alert('请先配置 17track API Key');return;}
+  const n=document.getElementById('ti').value.trim();if(!n)return;
   document.getElementById('tr').innerHTML='<div style="text-align:center;padding:36px;color:#94a3b8">⏳ 查询中…</div>';
   try{
-    await fetch('https://api.17track.net/track/v2.4/register',{method:'POST',headers:{'17token':TK,'Content-Type':'application/json'},body:JSON.stringify([{number:n}])});
-    await new Promise(r=>setTimeout(r,3000));
-    const res=await fetch('https://api.17track.net/track/v2.4/gettrackinfo',{method:'POST',headers:{'17token':TK,'Content-Type':'application/json'},body:JSON.stringify([{number:n}])});
-    const data=await res.json();const info=data?.data?.[0]?.tracking;
-    if(!info){document.getElementById('tr').innerHTML=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">📦 ${t('tNo')}</div>`;return;}
-    const st=info.latest_status?.status||'NotFound';
+    const res=await fetch('/api/tracking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trackingNumber:n})});
+    const data=await res.json();
+    if(data.error){document.getElementById('tr').innerHTML=`<div class="cd" style="border-color:#fca5a5;background:#fef2f2;color:#991b1b;font-size:13px">❌ ${data.error}</div>`;return;}
+    if(!data||data.status==='NotFound'){document.getElementById('tr').innerHTML=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">📦 ${t('tNo')}</div>`;return;}
+    const st=data.status||'NotFound';
     const SM={NotFound:{z:'未找到',e:'Not Found',c:'gray',i:'❌'},InTransit:{z:'运输中',e:'In Transit',c:'blue',i:'🚚'},Delivered:{z:'已签收',e:'Delivered',c:'green',i:'✅'},Exception:{z:'异常',e:'Exception',c:'red',i:'⚠️'},InfoReceived:{z:'已揽收',e:'Info Received',c:'blue',i:'📦'},OutForDelivery:{z:'派送中',e:'Out for Delivery',c:'indigo',i:'🚚'},Expired:{z:'过久',e:'Expired',c:'yellow',i:'⏰'},AvailableForPickup:{z:'待取',e:'Pickup',c:'purple',i:'📍'},DeliveryFailure:{z:'失败',e:'Failed',c:'red',i:'❌'}};
     const s=SM[st]||SM.NotFound;const bc={gray:'#e2e8f0',blue:'#93c5fd',green:'#86efac',red:'#fca5a5',yellow:'#fde68a',purple:'#c4b5fd',indigo:'#a5b4fc'};const bg={gray:'#f8fafc',blue:'#eff6ff',green:'#f0fdf4',red:'#fef2f2',yellow:'#fefce8',purple:'#faf5ff',indigo:'#eef2ff'};
     let h=`<div class="sc" style="border-color:${bc[s.c]};background:${bg[s.c]}"><div style="font-size:26px">${s.i}</div><div><div style="font-size:16px;font-weight:700">${L==='zh'?s.z:s.e}</div><div style="font-size:12px;color:#64748b">${t('num')}: <span style="font-family:monospace">${n}</span></div></div></div>`;
-    const evs=[];for(const p of info.providers||[])for(const e of p.events||[])evs.push({time:e.time_utc||e.time_raw||'',loc:e.location||'',desc:e.description||''});
-    evs.sort((a,b)=>new Date(b.time)-new Date(a.time));
+    const evs=data.events||[];
     if(evs.length){h+=`<div class="cd"><div style="font-size:14px;font-weight:600;margin-bottom:12px">📋 ${t('events')} <span style="font-weight:400;font-size:12px;color:#94a3b8">(${evs.length})</span></div><div class="tl">`;for(const e of evs){const tm=e.time?new Date(e.time).toLocaleString(L==='zh'?'zh-CN':'en',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'}):'';h+=`<div class="ti"><div class="td"></div><div class="tt">${tm}</div><div class="td2">${e.desc}</div>${e.loc?`<div class="tl2">📍 ${e.loc}</div>`:''}</div>`;}h+='</div></div>';}
     else{h+=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">📦 ${t('tNo')}</div>`;}
     document.getElementById('tr').innerHTML=h;
