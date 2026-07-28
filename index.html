@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CrossBorder AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+.hdr{background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:99}
+.hdr-in{max-width:1000px;margin:auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.hdr-in h1{font-size:16px}.hdr-in span{font-size:11px;color:#64748b}
+.nav{display:flex;gap:4px;padding:8px 16px;max-width:1000px;margin:auto;overflow-x:auto}
+.nb{padding:7px 14px;border-radius:8px;border:none;background:0;font-size:13px;cursor:pointer;color:#64748b;white-space:nowrap}
+.nb.on{background:#eff6ff;color:#2563eb;font-weight:600}
+.lb{padding:5px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:12px;cursor:pointer}
+.box{max-width:1000px;margin:auto;padding:16px}
+.cd{background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:18px;margin-bottom:14px}
+.btn{padding:10px 18px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-weight:600;font-size:13px;cursor:pointer}.btn:disabled{opacity:.5}
+.inp{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;outline:none}.inp:focus{border-color:#93c5fd}
+.ir{display:flex;gap:8px}.ir .inp{flex:1}
+.wrap{display:flex;height:calc(100vh - 160px);max-width:1000px;margin:auto}
+.side{width:240px;border-right:1px solid #e2e8f0;background:#fff;display:flex;flex-direction:column}
+.side-h{padding:12px;border-bottom:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;display:flex;justify-content:space-between}
+.side-l{flex:1;overflow-y:auto;padding:6px}
+.si{padding:9px 10px;border-radius:8px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.si:hover{background:#f8fafc}.si.on{background:#eff6ff;color:#2563eb}
+.si .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si .x{opacity:0;border:none;background:0;color:#dc2626;cursor:pointer;font-size:11px}.si:hover .x{opacity:1}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.mhdr{padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;font-weight:600;background:#fff}
+.msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.m{display:flex;gap:8px}.m.u{justify-content:flex-end}
+.mb{max-width:82%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.65;white-space:pre-wrap}
+.m.u .mb{background:#2563eb;color:#fff;border-bottom-right-radius:4px}
+.m.a .mb{background:#fff;border:1px solid #e2e8f0;border-bottom-left-radius:4px}
+.av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.m.u .av{background:#e2e8f0}.m.a .av{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff}
+.mt{font-size:10px;margin-top:3px;opacity:.5}.m.u .mt{text-align:right;color:rgba(255,255,255,.5)}
+.typ{display:flex;gap:3px;padding:6px 0}.typ span{width:7px;height:7px;border-radius:50%;background:#93c5fd;animation:p 1.4s infinite}
+.typ span:nth-child(2){animation-delay:.2s}.typ span:nth-child(3){animation-delay:.4s}
+@keyframes p{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.m{animation:fi .25s}
+.ina{border-top:1px solid #e2e8f0;padding:12px 16px;background:#fff}
+.wp{text-align:center;padding:50px 16px}.wp h2{font-size:20px;font-weight:700;margin:10px 0 4px}.wp p{color:#64748b;margin-bottom:16px}
+.qg{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:460px;margin:auto}
+.qb{padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;text-align:left;font-size:12px;cursor:pointer}
+.qb:hover{border-color:#93c5fd;background:#eff6ff}
+.rc{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:8px}
+.rc.best{border-color:#86efac;background:#f0fdf4}
+.rc .pr{font-size:20px;font-weight:700;color:#2563eb}
+.tl{position:relative;padding-left:24px}.tl::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:#e2e8f0}
+.ti{position:relative;padding:8px 0}
+.td{position:absolute;left:-19px;top:12px;width:10px;height:10px;border-radius:50%;background:#e2e8f0;border:2px solid #fff}
+.ti:first-child .td{background:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.ti .tt{font-size:11px;color:#64748b}.ti .td2{font-size:12px;margin-top:1px}.ti .tl2{font-size:11px;color:#64748b}
+.hsr{padding:14px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:8px}
+.hsc{font-family:monospace;font-size:16px;font-weight:700;color:#7c3aed}
+.hsk{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.hsk span{padding:2px 8px;border-radius:10px;background:#f1f5f9;font-size:11px;color:#64748b}
+.sc{padding:16px;border-radius:14px;border:2px solid;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.hide{display:none!important}
+@media(max-width:768px){.side{display:none}.qg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="hdr-in"><div><h1>🚢 CrossBorder AI</h1><span id="sd">跨境物流 · 智能助手</span></div><button class="lb" onclick="togLang()">EN</button></div></div>
+<div class="nav" id="nav"></div>
+<div class="box">
+  <div id="pg-chat" class="wrap">
+    <div class="side"><div class="side-h"><span id="ht">历史对话</span><button onclick="newChat()" style="border:none;background:0;font-size:16px;cursor:pointer">+</button></div><div class="side-l" id="hl"></div></div>
+    <div class="main">
+      <div class="mhdr"><span id="ct">跨境物流 AI 助手</span> <span style="font-size:11px;color:#64748b">✨ DeepSeek</span></div>
+      <div class="msgs" id="cm"></div>
+      <div class="ina"><div class="ir"><textarea class="inp" id="ci" rows="1" placeholder="输入你的问题…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" style="resize:none;min-height:42px"></textarea><button class="btn" onclick="send()" id="sb">发送</button></div></div>
+    </div>
+  </div>
+  <div id="pg-calc" class="hide">
+    <div style="text-align:center;margin-bottom:20px"><h2 id="cT">📦 国际运费估算</h2><p style="color:#64748b;font-size:13px" id="cD">输入包裹信息，对比主流物流渠道</p></div>
+    <div class="cd"><div class="ir" style="margin-bottom:10px"><div style="flex:1"><label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px" id="lw">重量 (kg)</label><input class="inp" type="number" id="cw" placeholder="0.5" step="0.1"></div><div style="flex:1"><label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px">📐 尺寸cm</label><div class="ir"><input class="inp" id="cL" placeholder="长"><input class="inp" id="cW" placeholder="宽"><input class="inp" id="cH" placeholder="高"></div></div></div><div class="ir"><div style="flex:1"><label style="font-size:12px;font-weight:500;display:block;margin-bottom:4px" id="ld">目的地</label><select class="inp" id="cd"></select></div><div style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn" onclick="doCalc()" id="cb">估算运费</button></div></div></div>
+    <div id="cr"></div>
+  </div>
+  <div id="pg-hs" class="hide">
+    <div style="text-align:center;margin-bottom:20px"><h2 id="hT">🔍 HS 编码查询</h2><p style="color:#64748b;font-size:13px" id="hD">输入商品描述，匹配海关编码</p></div>
+    <div class="cd"><div class="ir"><input class="inp" id="hi" placeholder="例如：蓝牙耳机、不锈钢水杯" onkeydown="if(event.key==='Enter')doHS()"><button class="btn" onclick="doHS()" id="hb">查询</button></div></div>
+    <div id="hr"></div>
+    <div class="cd"><div style="font-size:12px;font-weight:600;margin-bottom:8px">🔥 热门查询</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="hh"></div></div>
+  </div>
+  <div id="pg-trk" class="hide">
+    <div style="text-align:center;margin-bottom:20px"><h2 id="tT">📬 物流追踪</h2><p style="color:#64748b;font-size:13px" id="tD">输入运单号，查询全球 3400+ 运输商</p></div>
+    <div class="cd"><div class="ir"><input class="inp" id="ti" placeholder="运单号，如：RR123456789CN" style="font-family:monospace" onkeydown="if(event.key==='Enter')doTrk()"><button class="btn" onclick="doTrk()" id="tb">查询</button></div><div style="font-size:11px;color:#64748b;margin-top:6px">💡 支持 DHL/FedEx/UPS/USPS/4PX/云途等 3400+ 运输商</div></div>
+    <div id="tr"></div>
+  </div>
+</div>
+<footer style="text-align:center;padding:16px;color:#94a3b8;font-size:11px">© 2026 CrossBorder AI</footer>
+
+<script>
+// ===== CONFIG =====
+let DK=prompt('请输入 DeepSeek API Key:','')||'';
+let TK=prompt('请输入 17track API Key (可留空跳过):','')||'';
+const DU='https://api.deepseek.com';
+
+// ===== I18N =====
+let L='zh';
+const T={
+zh:{nav:['AI 对话','运费计算','HS 编码','物流追踪'],sd:'跨境物流 · 智能助手',ct:'跨境物流 AI 助手',ph:'输入你的问题…',send:'发送',think:'AI 思考中…',
+welcome:'你好！我是跨境物流 AI 助手 🚢\n\n你可以问我：\n• 国际物流渠道选择\n• 清关/报关流程\n• FBA 入仓要求\n• 跨境电商平台运营\n• 关税/税费计算\n\n有什么想了解的？',
+err:'抱歉，出错了，请稍后重试。',ht:'历史对话',noH:'暂无历史',
+cT:'📦 国际运费估算',cD:'输入包裹信息，对比主流物流渠道',lw:'重量 (kg)',ld:'目的地',sel:'请选择国家',cb:'估算运费',
+vol:'体积重',chg:'计费重量',cheap:'最便宜',
+hT:'🔍 HS 编码查询',hD:'输入商品描述，匹配海关编码',hPh:'例如：蓝牙耳机',hNote:'注意：仅供参考，实际以海关认定为准',
+tT:'📬 物流追踪',tD:'输入运单号，查询全球 3400+ 运输商',tPh:'运单号',tErr:'查询失败，请检查运单号',tNo:'暂无物流信息，请稍后重试',
+delivered:'已签收',inTransit:'运输中',exception:'异常',notFound:'未找到',events:'物流轨迹',num:'运单号',carrier:'承运商'},
+en:{nav:['AI Chat','Shipping','HS Code','Tracking'],sd:'Cross-border Logistics AI',ct:'Cross-Border Logistics AI',ph:'Ask a question…',send:'Send',think:'Thinking…',
+welcome:'Hi! I\'m your Cross-Border Logistics AI 🚢\n\nAsk about:\n• Shipping options\n• Customs clearance\n• FBA requirements\n• E-commerce operations\n• Duties & taxes\n\nWhat would you like to know?',
+err:'Sorry, an error occurred.',ht:'History',noH:'No history yet',
+cT:'📦 Shipping Estimator',cD:'Compare rates across carriers',lw:'Weight (kg)',ld:'Destination',sel:'Select country',cb:'Estimate',
+vol:'Vol.W',chg:'Chargeable',cheap:'Cheapest',
+hT:'🔍 HS Code Lookup',hD:'Describe your product',hPh:'e.g.: bluetooth earphones',hNote:'For reference only.',
+tT:'📬 Package Tracking',tD:'Track parcels across 3400+ carriers',tPh:'Tracking number',tErr:'Tracking failed. Check number.',tNo:'No tracking info yet.',
+delivered:'Delivered',inTransit:'In Transit',exception:'Exception',notFound:'Not Found',events:'Events',num:'No.',carrier:'Carrier'}
+};
+function t(k){return T[L][k]||k}
+
+// ===== NAV =====
+const P=['chat','calc','hs','trk'];
+const PI={chat:'💬',calc:'📦',hs:'🔍',trk:'📬'};
+let cp='chat';
+function rNav(){
+  document.getElementById('nav').innerHTML=P.map(p=>`<button class="nb ${p===cp?'on':''}" onclick="sp('${p}')">${PI[p]} ${t('nav')[P.indexOf(p)]}</button>`).join('');
+  document.getElementById('sd').textContent=t('sd');
+  document.getElementById('ct').textContent=t('ct');
+  document.getElementById('ci').placeholder=t('ph');
+  document.getElementById('sb').textContent=t('send');
+}
+function sp(p){cp=p;P.forEach(x=>document.getElementById('pg-'+x).classList.toggle('hide',x!==p));rNav();if(p==='calc')initCalc();if(p==='hs')initHS();}
+function togLang(){L=L==='zh'?'en':'zh';rNav();rChat();rHist();
+  document.getElementById('cT').textContent=t('cT');document.getElementById('cD').textContent=t('cD');
+  document.getElementById('hT').textContent=t('hT');document.getElementById('hD').textContent=t('hD');
+  document.getElementById('tT').textContent=t('tT');document.getElementById('tD').textContent=t('tD');
+  document.getElementById('hi').placeholder=t('hPh');document.getElementById('hb').textContent='查询';
+  document.getElementById('cb').textContent=t('cb');document.getElementById('tb').textContent='Track';
+  document.getElementById('ht').textContent=t('ht');initCalc();initHS();}
+
+// ===== CHAT MEMORY =====
+const SK='cb…ats';
+function getS(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch{return[]}}
+function saveS(s){localStorage.setItem(SK,JSON.stringify(s));rHist()}
+let curS=null,msgs=[];
+function newChat(){curS=null;msgs=[];rChat();rHist();}
+function loadS(id){const s=getS().find(x=>x.id===id);if(!s)return;curS=s;msgs=[...s.messages];rChat();rHist();}
+function delS(e,id){e.stopPropagation();saveS(getS().filter(x=>x.id!==id));if(curS?.id===id)newChat();}
+function saveCur(){if(!curS)return;const a=getS(),i=a.findIndex(x=>x.id===curS.id);if(i>=0){a[i].messages=msgs;a[i].u=Date.now();a[i].t=msgs.find(m=>m.r==='u')?.c?.slice(0,40)||'New';}saveS(a);}
+function rHist(){
+  const a=getS(),el=document.getElementById('hl');
+  if(!a.length){el.innerHTML=`<div style="text-align:center;padding:28px;color:#94a3b8;font-size:12px">${t('noH')}</div>`;return;}
+  el.innerHTML=a.map(s=>{const d=new Date(s.u);const tm=d.toLocaleDateString(L==='zh'?'zh-CN':'en',{month:'short',day:'numeric'});
+    return`<div class="si ${curS?.id===s.id?'on':''}" onclick="loadS('${s.id}')"><span>💬</span><span class="t">${s.t||'New'}</span><span style="font-size:10px;color:#94a3b8">${tm}</span><button class="x" onclick="delS(event,'${s.id}')">✕</button></div>`;}).join('');
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+function rChat(){
+  const el=document.getElementById('cm');
+  if(!msgs.length){const qs=L==='zh'?['发美国FBA用什么物流最划算？','DDP和DDU有什么区别？','欧洲VAT怎么注册？','Shopee东南亚选品建议']:['Best shipping to US FBA?','DDP vs DDU?','EU VAT registration?','Shopee product tips'];
+    el.innerHTML=`<div class="wp"><div style="font-size:42px">🚢</div><h2>${t('ct')}</h2><p>${T[L].welcome.split('\n\n')[0]}</p><div class="qg">${qs.map(q=>`<button class="qb" onclick="document.getElementById('ci').value='${q}'">${q}</button>`).join('')}</div></div>`;return;}
+  el.innerHTML=msgs.map(m=>`<div class="m ${m.r==='u'?'u':'a'}">${m.r==='a'?'<div class="av">🤖</div>':''}<div><div class="mb">${esc(m.c)}</div><div class="mt">${new Date(m.t).toLocaleTimeString(L==='zh'?'zh-CN':'en',{hour:'2-digit',minute:'2-digit'})}</div></div>${m.r==='u'?'<div class="av">👤</div>':''}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+let streaming=false;
+async function send(){
+  const ci=document.getElementById('ci'),c=ci.value.trim();
+  if(!c||streaming)return;if(!DK){alert('请先配置 DeepSeek API Key');return;}
+  if(!curS){curS={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:c.slice(0,40),messages:[],u:Date.now()};const a=getS();a.unshift(curS);saveS(a);}
+  msgs.push({r:'u',c,t:Date.now()});ci.value='';rChat();saveCur();
+  streaming=true;document.getElementById('sb').disabled=true;document.getElementById('sb').textContent=t('think');
+  const cm=document.getElementById('cm'),td=document.createElement('div');td.className='m a';td.id='tm';td.innerHTML='<div class="av">🤖</div><div><div class="mb"><div class="typ"><span></span><span></span><span></span></div></div></div>';cm.appendChild(td);cm.scrollTop=cm.scrollHeight;
+  try{
+    const res=await fetch(DU+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+DK},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:L==='zh'?'你是CrossBorder AI，专业的跨境物流和跨境电商AI助手。回答准确专业，给具体数据，用emoji，用Markdown。':'You are CrossBorder AI, a pro cross-border logistics assistant. Be accurate and actionable. Use emoji and Markdown.'},...msgs.map(m=>({role:m.r==='u'?'user':'assistant',content:m.c}))],stream:true,max_tokens:2000,temperature:0.7})});
+    const rd=res.body.getReader(),dc=new TextDecoder();let full='';
+    while(true){const{done,value}=await rd.read();if(done)break;const ch=dc.decode(value,{stream:true});for(const ln of ch.split('\n')){if(ln.startsWith('data:')&&ln!=='data: [DONE]'){try{const d=JSON.parse(ln.slice(5));const tx=d.choices?.[0]?.delta?.content||'';full+=tx;const el=document.getElementById('tm');if(el)el.querySelector('.mb').innerHTML=esc(full);cm.scrollTop=cm.scrollHeight;}catch{}}}}
+    document.getElementById('tm')?.remove();msgs.push({r:'a',c:full||t('err'),t:Date.now()});rChat();saveCur();
+  }catch(e){document.getElementById('tm')?.remove();msgs.push({r:'a',c:t('err'),t:Date.now()});rChat();saveCur();}
+  finally{streaming=false;document.getElementById('sb').disabled=false;document.getElementById('sb').textContent=t('send');}
+}
+
+// ===== CALCULATOR =====
+const CTR=[{c:'US',z:'美国',e:'US',z1:1},{c:'GB',z:'英国',e:'UK',z1:2},{c:'DE',z:'德国',e:'DE',z1:2},{c:'FR',z:'法国',e:'FR',z1:2},{c:'JP',z:'日本',e:'JP',z1:1},{c:'KR',z:'韩国',e:'KR',z1:1},{c:'AU',z:'澳大利亚',e:'AU',z1:3},{c:'CA',z:'加拿大',e:'CA',z1:1},{c:'SG',z:'新加坡',e:'SG',z1:2},{c:'MY',z:'马来西亚',e:'MY',z1:2},{c:'TH',z:'泰国',e:'TH',z1:2},{c:'VN',z:'越南',e:'VN',z1:2},{c:'ID',z:'印尼',e:'ID',z1:2},{c:'IN',z:'印度',e:'IN',z1:3},{c:'AE',z:'阿联酋',e:'AE',z1:3},{c:'BR',z:'巴西',e:'BR',z1:4},{c:'MX',z:'墨西哥',e:'MX',z1:4},{c:'RU',z:'俄罗斯',e:'RU',z1:3}];
+const CH=[
+  {n:'DHL',ne:'DHL Express',i:'✈️',b:180,x:45,p:0,m:180,d:'3-5天',de:'3-5d',v:5000},
+  {n:'FedEx',ne:'FedEx Economy',i:'✈️',b:150,x:38,p:0,m:150,d:'4-7天',de:'4-7d',v:5000},
+  {n:'UPS',ne:'UPS Express',i:'✈️',b:160,x:42,p:0,m:160,d:'3-6天',de:'3-6d',v:5000},
+  {n:'EMS',ne:'EMS',i:'📮',b:120,x:30,p:0,m:120,d:'5-10天',de:'5-10d',v:6000},
+  {n:'空运',ne:'Air',i:'🛩️',b:0,x:0,p:35,m:350,d:'7-12天',de:'7-12d',v:6000},
+  {n:'海运',ne:'Sea',i:'🚢',b:0,x:0,p:8,m:500,d:'20-35天',de:'20-35d',v:6000},
+  {n:'铁路',ne:'Rail',i:'🚂',b:0,x:0,p:15,m:800,d:'15-20天',de:'15-20d',v:6000},
+];
+function initCalc(){document.getElementById('cd').innerHTML=`<option value="">${t('sel')}</option>`+CTR.map(c=>`<option value="${c.c}">${L==='zh'?c.z:c.e}</option>`).join('');document.getElementById('lw').textContent=t('lw');document.getElementById('ld').textContent=t('ld');document.getElementById('cb').textContent=t('cb');}
+function doCalc(){
+  const w=parseFloat(document.getElementById('cw').value),dest=document.getElementById('cd').value;if(!w||!dest)return;
+  const l=parseFloat(document.getElementById('cL').value)||30,wi=parseFloat(document.getElementById('cW').value)||25,h=parseFloat(document.getElementById('cH').value)||20;
+  const c=CTR.find(x=>x.c===dest);if(!c)return;const zm=[1,1,1.2,1.5,1.8][c.z1-1]||1;
+  const rs=CH.map(ch=>{const vw=l*wi*h/ch.v;const cw=Math.max(w,vw);let co=ch.b>0?ch.b+Math.max(0,cw-0.5)*ch.x:cw*ch.p;co=Math.max(co*zm,ch.m);return{ch,co:Math.round(co*100)/100,vw:Math.round(vw*100)/100,cw:Math.round(cw*100)/100};}).sort((a,b)=>a.co-b.co);
+  document.getElementById('cr').innerHTML=rs.map((r,i)=>`<div class="rc ${i===0?'best':''}"><div style="font-size:22px">${r.ch.i}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">${L==='zh'?r.ch.n:r.ch.ne} ${i===0?'<span style="color:#16a34a;font-size:11px">✅ '+t('cheap')+'</span>':''}</div><div style="font-size:11px;color:#64748b">⏱ ${L==='zh'?r.ch.d:r.ch.de} · ${t('vol')}: ${r.vw}kg · ${t('chg')}: ${r.cw}kg</div></div><div class="pr">¥${r.co.toLocaleString()}</div></div>`).join('');
+}
+
+// ===== HS CODE =====
+const HS=[
+  {c:'8517.12',k:['手机','智能手机','手机壳'],ke:['mobile phone','smartphone','phone case'],d:'智能手机',de:'Smartphones',tx:'0%'},
+  {c:'8518.30',k:['耳机','蓝牙耳机','无线耳机'],ke:['earphones','headphones','bluetooth'],d:'耳机',de:'Headphones',tx:'0-3%'},
+  {c:'8471.30',k:['笔记本','平板电脑'],ke:['laptop','tablet'],d:'电脑',de:'Laptops',tx:'0%'},
+  {c:'6110.20',k:['卫衣','连帽衫','毛衣'],ke:['hoodie','sweater'],d:'卫衣',de:'Hoodies',tx:'10-16%'},
+  {c:'6204.62',k:['裤子','牛仔裤'],ke:['pants','jeans'],d:'裤子',de:'Trousers',tx:'10-16%'},
+  {c:'9503.00',k:['玩具','毛绒玩具','积木'],ke:['toy','plush'],d:'玩具',de:'Toys',tx:'0-5%'},
+  {c:'3926.20',k:['手机壳','保护壳','手机膜'],ke:['phone case','screen protector'],d:'手机壳',de:'Cases',tx:'5-10%'},
+  {c:'9403.40',k:['家具','桌子','椅子'],ke:['furniture','table','chair'],d:'家具',de:'Furniture',tx:'0-10%'},
+  {c:'3304.99',k:['化妆品','护肤品','面膜','口红'],ke:['cosmetics','skincare','lipstick'],d:'化妆品',de:'Cosmetics',tx:'2-6.5%'},
+  {c:'8504.40',k:['充电器','充电宝','数据线'],ke:['charger','power bank'],d:'充电器',de:'Chargers',tx:'0-3%'},
+  {c:'4202.12',k:['背包','手提包','钱包','行李箱'],ke:['backpack','handbag','wallet'],d:'箱包',de:'Bags',tx:'8-20%'},
+  {c:'7013.49',k:['杯子','水杯','保温杯','马克杯'],ke:['cup','tumbler','mug'],d:'水杯',de:'Tumblers',tx:'5-12%'},
+];
+function initHS(){const h=L==='zh'?['蓝牙耳机','手机壳','卫衣','玩具','化妆品','充电器','背包','水杯']:['bluetooth','phone case','hoodie','toy','cosmetics','charger','backpack','tumbler'];document.getElementById('hh').innerHTML=h.map(k=>`<button style="padding:5px 12px;border-radius:16px;border:1px solid #e2e8f0;background:#fff;font-size:12px;cursor:pointer" onclick="document.getElementById('hi').value='${k}';doHS()">${k}</button>`).join('');}
+function doHS(){
+  const q=document.getElementById('hi').value.toLowerCase().trim();if(!q)return;
+  const rs=HS.filter(e=>{const k=L==='zh'?e.k:e.ke;return k.some(kw=>kw.toLowerCase().includes(q)||q.includes(kw.toLowerCase()));});
+  if(!rs.length){document.getElementById('hr').innerHTML=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">🔍 未找到"${q}"对应的编码</div>`;return;}
+  document.getElementById('hr').innerHTML=rs.map(e=>`<div class="hsr"><div style="display:flex;gap:12px"><div><span class="hsc">${e.c}</span></div><div style="flex:1"><div style="font-weight:600;font-size:13px">${L==='zh'?e.d:e.de}</div><div style="font-size:12px;color:#64748b">${L==='zh'?e.de:e.d}</div><div style="margin-top:4px;font-size:12px">税率: <span style="color:#2563eb;font-weight:600">${e.tx}</span></div><div class="hsk">${(L==='zh'?e.k:e.ke).map(k=>`<span>${k}</span>`).join('')}</div></div></div></div>`).join('')+`<div style="padding:10px;border-radius:10px;background:#fef9c3;color:#854d0e;font-size:12px;margin-top:6px">⚠️ ${t('hNote')}</div>`;
+}
+
+// ===== TRACKING =====
+async function doTrk(){
+  const n=document.getElementById('ti').value.trim();if(!n)return;if(!TK){alert('请先配置 17track API Key');return;}
+  document.getElementById('tr').innerHTML='<div style="text-align:center;padding:36px;color:#94a3b8">⏳ 查询中…</div>';
+  try{
+    await fetch('https://api.17track.net/track/v2.4/register',{method:'POST',headers:{'17token':TK,'Content-Type':'application/json'},body:JSON.stringify([{number:n}])});
+    await new Promise(r=>setTimeout(r,3000));
+    const res=await fetch('https://api.17track.net/track/v2.4/gettrackinfo',{method:'POST',headers:{'17token':TK,'Content-Type':'application/json'},body:JSON.stringify([{number:n}])});
+    const data=await res.json();const info=data?.data?.[0]?.tracking;
+    if(!info){document.getElementById('tr').innerHTML=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">📦 ${t('tNo')}</div>`;return;}
+    const st=info.latest_status?.status||'NotFound';
+    const SM={NotFound:{z:'未找到',e:'Not Found',c:'gray',i:'❌'},InTransit:{z:'运输中',e:'In Transit',c:'blue',i:'🚚'},Delivered:{z:'已签收',e:'Delivered',c:'green',i:'✅'},Exception:{z:'异常',e:'Exception',c:'red',i:'⚠️'},InfoReceived:{z:'已揽收',e:'Info Received',c:'blue',i:'📦'},OutForDelivery:{z:'派送中',e:'Out for Delivery',c:'indigo',i:'🚚'},Expired:{z:'过久',e:'Expired',c:'yellow',i:'⏰'},AvailableForPickup:{z:'待取',e:'Pickup',c:'purple',i:'📍'},DeliveryFailure:{z:'失败',e:'Failed',c:'red',i:'❌'}};
+    const s=SM[st]||SM.NotFound;const bc={gray:'#e2e8f0',blue:'#93c5fd',green:'#86efac',red:'#fca5a5',yellow:'#fde68a',purple:'#c4b5fd',indigo:'#a5b4fc'};const bg={gray:'#f8fafc',blue:'#eff6ff',green:'#f0fdf4',red:'#fef2f2',yellow:'#fefce8',purple:'#faf5ff',indigo:'#eef2ff'};
+    let h=`<div class="sc" style="border-color:${bc[s.c]};background:${bg[s.c]}"><div style="font-size:26px">${s.i}</div><div><div style="font-size:16px;font-weight:700">${L==='zh'?s.z:s.e}</div><div style="font-size:12px;color:#64748b">${t('num')}: <span style="font-family:monospace">${n}</span></div></div></div>`;
+    const evs=[];for(const p of info.providers||[])for(const e of p.events||[])evs.push({time:e.time_utc||e.time_raw||'',loc:e.location||'',desc:e.description||''});
+    evs.sort((a,b)=>new Date(b.time)-new Date(a.time));
+    if(evs.length){h+=`<div class="cd"><div style="font-size:14px;font-weight:600;margin-bottom:12px">📋 ${t('events')} <span style="font-weight:400;font-size:12px;color:#94a3b8">(${evs.length})</span></div><div class="tl">`;for(const e of evs){const tm=e.time?new Date(e.time).toLocaleString(L==='zh'?'zh-CN':'en',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'}):'';h+=`<div class="ti"><div class="td"></div><div class="tt">${tm}</div><div class="td2">${e.desc}</div>${e.loc?`<div class="tl2">📍 ${e.loc}</div>`:''}</div>`;}h+='</div></div>';}
+    else{h+=`<div class="cd" style="text-align:center;padding:36px;color:#94a3b8">📦 ${t('tNo')}</div>`;}
+    document.getElementById('tr').innerHTML=h;
+  }catch(e){document.getElementById('tr').innerHTML=`<div class="cd" style="border-color:#fca5a5;background:#fef2f2;color:#991b1b;font-size:13px">❌ ${t('tErr')}: ${e.message}</div>`;}
+}
+
+// ===== INIT =====
+rNav();rHist();rChat();initCalc();initHS();
+</script>
+</body>
+</html>
