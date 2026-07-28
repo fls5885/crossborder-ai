@@ -1,0 +1,23 @@
+{
+  "name": "crossborder-ai",
+  "version": "1.0.0",
+  "description": "Cross-border logistics AI assistant",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fls5885/crossborder-ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fls5885/crossborder-ai/issues"
+  },
+  "homepage": "https://github.com/fls5885/crossborder-ai#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
